@@ -1,0 +1,28 @@
+﻿
+
+syntax = "proto3";
+
+option csharp_namespace = "demo";
+
+package demo;
+
+service Demo {
+  rpc SendMessage (Message) returns (StatusReply) {}
+  rpc GetMessages (Query) returns (Messages) {}
+}
+
+message Query {
+}
+
+message Messages {
+	repeated Message messages = 2;
+}
+
+message Message {
+  string messageText = 1;
+  int32 id = 2;
+}
+
+message StatusReply {
+  string statusText = 1;
+}
