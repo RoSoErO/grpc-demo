@@ -12,9 +12,13 @@ namespace grpc_demo_client
     public class ChatClient
     {
         private bool runBackgroundThread = true;
+        private string name;
 
         public async Task start()
         {
+            Console.WriteLine("What is your name:");
+            name = Console.ReadLine();
+
             string message = "";
 
             using var channel = GrpcChannel.ForAddress("https://localhost:50001");
@@ -30,8 +34,7 @@ namespace grpc_demo_client
                 message = Console.ReadLine();
                 if (message == "exit") { break; }
 
-                var reply = await client.SendMessageAsync(new Message() { MessageText = message });
-                //Console.WriteLine(reply.StatusText);
+                var reply = await client.SendMessageAsync(new Message() { Sender = name, MessageText = message });
             }
 
             runBackgroundThread = false;
@@ -45,15 +48,24 @@ namespace grpc_demo_client
             using var channel = GrpcChannel.ForAddress("https://localhost:50001");
             var client = new Demo.DemoClient(channel);
 
+            int highestMessageId = -1;
+
             while (runBackgroundThread)
             {
-                Console.WriteLine("All messages:");
-                var messages = await client.GetMessagesAsync(new Query());
+                var messages = await client.GetMessagesAsync(new Query() { LatestId = highestMessageId });
+
                 foreach (var message_ in messages.Messages_)
                 {
-                    Console.WriteLine(message_.MessageText);
+                    if (message_.Id > highestMessageId)
+                    {
+                        highestMessageId = message_.Id;
+                    }
+                    // Do not show messages you sent yourself
+                    if (message_.Sender != this.name) 
+                    {
+                        Console.WriteLine(message_.Sender + ": " + message_.MessageText);
+                    }                    
                 }
-
                 Thread.Sleep(5000);
             }
         }

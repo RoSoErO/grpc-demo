@@ -21,16 +21,9 @@ namespace grpc_demo_server
             nextiID = 1;
         }
 
-        public List<Message> GetAllMessages()
+        public List<Message> GetMessages(int latestId)
         {
-            lock (mylock)
-            {
-                return messages;
-            }
-        }
-
-        public List<Message> GetMessagesAfterId(int latestId)
-        {
+            // To get all ids set latestId < 0
             lock (mylock)
             {
                 return messages

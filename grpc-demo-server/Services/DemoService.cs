@@ -19,7 +19,8 @@ namespace grpc_demo_server
 
         public override Task<StatusReply> SendMessage(Message message, ServerCallContext context)
         {
-            var response = new StatusReply() { StatusText = "Message ok! Message length: " + message.MessageText.Length };
+            var response = new StatusReply() 
+                { StatusText = "Message ok! Message length: " + message.MessageText.Length };
 
             messageService.AddMessage(message);
 
@@ -29,7 +30,7 @@ namespace grpc_demo_server
         public override Task<Messages> GetMessages(Query query, ServerCallContext context)
         {
             var response = new Messages();
-            response.Messages_.AddRange(messageService.GetAllMessages().Select(e => new Message() { MessageText = e.MessageText }));
+            response.Messages_.AddRange(messageService.GetMessages(query.LatestId));
 
             return Task.FromResult(response);
         }
